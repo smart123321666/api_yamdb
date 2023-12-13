@@ -2,22 +2,17 @@ from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from api.models import Comment, Category, Title, Review, Genre
+from reviews.models import Comment, Category, Title, Review, Genre
 
 
-
-"""class PostSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True
-    )
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Post
+        model = Category
 
 
-class CommentSerializer(serializers.ModelSerializer):
+"""class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'
     )
