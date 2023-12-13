@@ -1,14 +1,5 @@
-from django.contrib.auth import get_user_model
 from django.db import models
-from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-User = get_user_model()
-
-
-class UserApi(AbstractUser):
-    bio = models.TextField('Биография', blank=True) 
-
 
 
 class Category(models.Model):
@@ -22,7 +13,6 @@ class Category(models.Model):
         return self.title
 
 
-
 class Genre(models.Model):
     name = models.CharField(
         max_length=200,
@@ -32,7 +22,7 @@ class Genre(models.Model):
 
     def __str__(self):
         return self.title
-    
+
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
@@ -45,11 +35,7 @@ class Title(models.Model):
     genre = models.ManyToManyField(Genre)
 
 
-
 class Review(models.Model):
-    text = models.TextField()
-    pub_date = models.DateTimeField(auto_now_add=True)
-    author = models.IntegerField()
     title = models.OneToOneField(
         Title,
         on_delete=models.CASCADE,
@@ -57,6 +43,8 @@ class Review(models.Model):
         blank=True,
         null=True
     )
+    text = models.TextField()
+    author = models.IntegerField()
     score = models.IntegerField(
         default=0,
         validators=[
@@ -64,6 +52,7 @@ class Review(models.Model):
             MinValueValidator(0)
         ]
     )
+    pub_date = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ('pub_date',)
@@ -73,12 +62,17 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    author = models.IntegerField()
     review = models.ForeignKey(
-        Review, on_delete=models.CASCADE, related_name='comments')
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
     text = models.TextField()
-    created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+    author = models.IntegerField()
+    pub_date = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True
+    )
 
     class Meta:
-        ordering = ('created',)
+        ordering = ('pub_date',)
