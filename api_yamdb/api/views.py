@@ -3,6 +3,15 @@ from rest_framework import filters, permissions, viewsets
 from rest_framework import mixins
 from rest_framework.pagination import LimitOffsetPagination
 
+from api.serializers import (
+    CommentSerializer,
+    GroupSerializer,
+    PostSerializer,
+    FollowSerializer
+)
+# from api.permissions import IsAuthenticatedAuthororReadOnly
+from api.models import Comment, Category, Title, Review, Genre
+
 
 class CategoryViewSet(viewsets.ModelViewSet):
     pass

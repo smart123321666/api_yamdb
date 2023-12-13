@@ -1,13 +1,12 @@
-""" from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
-from posts.models import Comment, Post, Group, Follow
-
-User = get_user_model()
+from api.models import Comment, Category, Title, Review, Genre
 
 
-class PostSerializer(serializers.ModelSerializer):
+
+"""class PostSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username',
         read_only=True
