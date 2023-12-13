@@ -1,10 +1,34 @@
-""" from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, viewsets
 from rest_framework import mixins
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.serializers import (
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class GenreViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class TitleViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    pass
+
+
+class UserViewSet(viewsets.ModelViewSet):
+    pass
+
+
+"""from api.serializers import (
     CommentSerializer,
     GroupSerializer,
     PostSerializer,
