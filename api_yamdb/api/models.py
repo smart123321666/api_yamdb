@@ -1,12 +1,21 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 User = get_user_model()
 
 
+class UserApi(AbstractUser):
+    bio = models.TextField('Биография', blank=True) 
+
+
+
 class Category(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=200,
+        unique=True
+    )
     slug = models.SlugField(unique=True)
 
     def __str__(self):
@@ -15,7 +24,10 @@ class Category(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(
+        max_length=200,
+        unique=True
+    )
     slug = models.SlugField(unique=True)
 
     def __str__(self):
@@ -24,25 +36,20 @@ class Genre(models.Model):
 
 class Title(models.Model):
     name = models.CharField(max_length=200)
-    year = models.IntegerField()
+    year = models.IntegerField() # Возможно нужно поменять на DateField
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
         related_name='category_titles'
     )
-    genre = models.ManyToManyField(
-        Genre,
-        #on_delete=models.CASCADE,
-        #related_name='genre_titles'
-    )
+    genre = models.ManyToManyField(Genre)
 
 
 
 class Review(models.Model):
     text = models.TextField()
-    pub_date = models.DateTimeField('Дата публикации', auto_now_add=True)
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='review_author')
+    pub_date = models.DateTimeField(auto_now_add=True)
+    author = models.IntegerField()
     title = models.OneToOneField(
         Title,
         on_delete=models.CASCADE,
@@ -66,8 +73,7 @@ class Review(models.Model):
 
 
 class Comment(models.Model):
-    author = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='comments')
+    author = models.IntegerField()
     review = models.ForeignKey(
         Review, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
