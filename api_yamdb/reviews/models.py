@@ -36,12 +36,10 @@ class Title(models.Model):
 
 
 class Review(models.Model):
-    title = models.OneToOneField(
+    title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
         related_name='title',
-        blank=True,
-        null=True
     )
     text = models.TextField()
     author = models.IntegerField()
