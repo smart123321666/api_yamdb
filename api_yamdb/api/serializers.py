@@ -12,6 +12,26 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
 
 
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Genre
+
+
+class TitleSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Review
+
 """class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         read_only=True, slug_field='username'

@@ -3,28 +3,50 @@ from rest_framework import filters, permissions, viewsets
 from rest_framework import mixins
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.serializers import CategorySerializer
+from api.serializers import CategorySerializer, GenreSerializer, TitleSerializer, ReviewSerializer
 
 # from api.permissions import IsAuthenticatedAuthororReadOnly
 from reviews.models import Comment, Category, Title, Review, Genre
+from api.permissions import IsAuthenticatedAuthororReadOnly
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    pagination_class = LimitOffsetPagination
     # pass
 
 
 class GenreViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    pagination_class = LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    pass
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    pagination_class = LimitOffsetPagination
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
-    pass
+    serializer_class = ReviewSerializer
+    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+
+    def get_review(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('title_id'))
+
+    def get_queryset(self):
+        return self.get_review().review.all()
+
+    def perform_create(self, serializer):
+        return serializer.save(
+            author=self.request.user,
+            post=self.get_review()
+        )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
