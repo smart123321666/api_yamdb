@@ -3,10 +3,16 @@ from rest_framework import filters, permissions, viewsets
 from rest_framework import mixins
 from rest_framework.pagination import LimitOffsetPagination
 
-from api.serializers import CategorySerializer, GenreSerializer, TitleSerializer, ReviewSerializer
+from api.serializers import (
+    CategorySerializer,
+    GenreSerializer,
+    TitleSerializer,
+    ReviewSerializer,
+    CommentSerializer
+)
 
 # from api.permissions import IsAuthenticatedAuthororReadOnly
-from reviews.models import Comment, Category, Title, Review, Genre
+from reviews.models import Category, Genre, Review, Title, Genre
 from api.permissions import IsAuthenticatedAuthororReadOnly
 
 
@@ -21,8 +27,8 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
-    pagination_class = LimitOffsetPagination
+    #permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    #pagination_class = LimitOffsetPagination
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -36,40 +42,41 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthenticatedAuthororReadOnly,)
 
-    def get_review(self):
-        return get_object_or_404(Review, pk=self.kwargs.get('title_id'))
+    def get_title(self):
+        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
-    def get_queryset(self):
-        return self.get_review().review.all()
+    def get_titlet(self):
+        return self.get_review().reviews.all()
 
     def perform_create(self, serializer):
         return serializer.save(
-            author=self.request.user,
-            post=self.get_review()
+            #author=self.request.user,
+            post=self.get_title()
         )
 
 
 class CommentViewSet(viewsets.ModelViewSet):
-    pass
+    serializer_class = CommentSerializer
+    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+
+    def get_review(self):
+        return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
+
+    def get_queryset(self):
+        return self.get_review().comments.all()
+
+    def perform_create(self, serializer):
+        return serializer.save(
+            #author=self.request.user,
+            post=self.get_review()
+        )
 
 
 class UserViewSet(viewsets.ModelViewSet):
     pass
 
 
-"""from api.serializers import (
-    CommentSerializer,
-    GroupSerializer,
-    PostSerializer,
-    FollowSerializer
-)
-from api.permissions import IsAuthenticatedAuthororReadOnly
-from posts.models import Post, Group
-
-User = get_user_model()
-
-
-class PostViewSet(viewsets.ModelViewSet):
+"""class PostViewSet(viewsets.ModelViewSet):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (IsAuthenticatedAuthororReadOnly,)

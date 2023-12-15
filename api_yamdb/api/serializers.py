@@ -20,6 +20,20 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
+    #category = CategorySerializer(many=True)
+    genre = GenreSerializer(many=True)
+    """ genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        many=True,
+        #read_only=True,
+        slug_field='name',
+        default=GenreSerializer(many=True),
+    ) """
+    """ category = serializers.SlugRelatedField(
+        #many=True,
+        read_only=True,
+        slug_field='name'
+    ) """
 
     class Meta:
         fields = '__all__'
@@ -32,50 +46,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
         model = Review
 
-"""class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
+
+class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
         model = Comment
-        read_only_fields = ('post',)
-
-
-class GroupSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Group
-        fields = '__all__'
-
-
-class FollowSerializer(serializers.ModelSerializer):
-    user = serializers.SlugRelatedField(
-        read_only=True,
-        slug_field='username',
-        default=serializers.CurrentUserDefault(),
-    )
-    following = serializers.SlugRelatedField(
-        queryset=User.objects.all(),
-        slug_field='username',
-    )
-
-    class Meta:
-        model = Follow
-        fields = (
-            'user',
-            'following',
-        )
-        validators = [
-            UniqueTogetherValidator(
-                queryset=Follow.objects.all(),
-                fields=['user', 'following'],
-                message='Вы уже подписаны!'
-            )
-        ]
-
-    def validate_following(self, value):
-        if self.context.get('request').user == value:
-            raise serializers.ValidationError('Нельзя подписаться на себя!')
-        return value """
