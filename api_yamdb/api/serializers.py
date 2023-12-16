@@ -29,11 +29,11 @@ class TitleSerializer(serializers.ModelSerializer):
         slug_field='name',
         default=GenreSerializer(many=True),
     ) """
-    """ category = serializers.SlugRelatedField(
+    category = serializers.SlugRelatedField(
         #many=True,
         read_only=True,
         slug_field='name'
-    ) """
+    )
 
     class Meta:
         fields = '__all__'
