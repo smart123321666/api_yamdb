@@ -8,37 +8,25 @@ User = get_user_model()
 
 class CustomUserSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField(
-        validators=[validators.UniqueValidator(queryset=User.objects.all())]
-    )
-
     class Meta:
         model = User
         fields = ('first_name','last_name',
                   'username','email','bio','role',)
 
+
+
 class CustomUserCreationSerializer(serializers.ModelSerializer):
 
-    email = serializers.EmailField(
-        validators=[validators.UniqueValidator(queryset=User.objects.all())]
-    )
 
     class Meta:
         model = User
         fields = ('email','username')
         extra_kwargs = {
             'email':{'required':True},
-            'username':{'required':True}
+            'username':{'required':True},
         }
-        validators = [
-            serializers.UniqueTogetherValidator(
-                queryset=model.objects.all(),
-                fields=('email','username'),
-                message="Логин и email Должны быть уникальны"
-            )
-        ]
 
-    def validate_username(self,username):
+    def validate_username(self, username):
         if username == 'me':
             raise ValidationError(f'Логин {username} недоступен')
         return username
@@ -49,5 +37,5 @@ class CodeConfirmSerializer(serializers.Serializer):
 
     extra_kwargs = {
         'confirmation_code':{'required':True},
-        'username':{'required':True}
+        'username':{'required':True},
     }

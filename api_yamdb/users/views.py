@@ -1,3 +1,4 @@
+from http import HTTPStatus
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
@@ -18,7 +19,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset= User.objects.all()
     serializer_class = CustomUserSerializer
     http_method_names = ['get','post','patch','delete']
-    #permission_classes = (IsAdmin,)
+    permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter)
     lookup_field = 'username'
     search_fields = ['username']
@@ -42,23 +43,28 @@ class UserViewSet(viewsets.ModelViewSet):
 class UserSignUpView(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
-    def post(self,request):
-        serializer = CustomUserSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        email = serializer.validate_data.get('email')
-        username = serializer.validate_data('username')
-        serializer.save(username=username)
-        user = get_object_or_404(User, username=username)
-        if user:
-            user.is_active=False
+    def post(self, request):
+        email = request.data.get('email')
+        username = request.data.get('username')
+        existing_user = User.objects.filter(email=email).first()
+        existing_email = User.objects.filter(username=username).first()
+        if existing_user and existing_email:
+                return Response({'email': existing_user.email, 'username': existing_email.username}, status=status.HTTP_200_OK)
+        serializer = CustomUserCreationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(username=username)
+            user = User.objects.get(username=username)
+            user.is_active = False
             user.save()
-        send_mail(subject='Code confirmation',
-                  message=f'{user.confirmation_code}',
-                  from_email= settings.EMAIL_HOST_USER,
-                  recipient_list=[email],
-                  fail_silently=False)
-        return Response({'email':email, 'username':username},
-                        status=status.HTTP_200_OK)
+            send_mail(subject='Code confirmation',
+                      message=f'Your confirmation is: {user.confirmation_code}',
+                      from_email=settings.EMAIL_HOST_USER,
+                      recipient_list=[email],
+                      fail_silently=False)
+
+            return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class TokenObtainView(views.APIView):
     permission_classes=(permissions.AllowAny,)
@@ -66,8 +72,8 @@ class TokenObtainView(views.APIView):
     def post(self, request):
         serializer = CodeConfirmSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        confirmation_code = serializer.validate_data.get('confirmation_code ')
-        username = serializer.validate_data.get('username')
+        confirmation_code = serializer.validated_data.get('confirmation_code')
+        username = serializer.validated_data.get('username')
         user = get_object_or_404(User, username=username)
         if user and confirmation_code == user.confirmation_code:
             user.is_active = True

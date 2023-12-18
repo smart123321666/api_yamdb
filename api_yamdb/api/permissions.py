@@ -11,8 +11,4 @@ class IsAuthenticatedAuthororReadOnly(permissions.BasePermission):
         )
 
     def has_object_permission(self, request, view, obj):
-        return True """
-    """ (
-            obj.author == request.user
-            or request.method in permissions.SAFE_METHODS
-        ) """
+        return request.user.is_authenticated and request.user.is_admin
