@@ -100,7 +100,7 @@ USE_L10N = True
 
 USE_TZ = True
 
-
+EMAIL_HOST_USER = 'yamdb@yandex.ru'
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
