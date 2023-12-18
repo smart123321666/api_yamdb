@@ -49,6 +49,7 @@ class TitleViewSet(viewsets.ModelViewSet):
     #permission_classes = (IsAuthenticatedAuthororReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
  
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -58,8 +59,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
-    def get_titlet(self):
-        return self.get_review().reviews.all()
+    def get_queryset(self):
+        return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
         return serializer.save(

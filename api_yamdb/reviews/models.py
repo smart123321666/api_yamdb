@@ -45,10 +45,12 @@ class Title(models.Model):
     year = models.IntegerField(
         'Год'
     ) # Возможно нужно поменять на DateField
-    """ description = models.TextField(
+    description = models.TextField(
         'Описание',
-        max_length=MAXIMUM_LENGHT_OF_HEDERS
-    ) """
+        max_length=MAXIMUM_LENGHT_OF_HEDERS,
+        null=True,
+        blank=True
+    )
     category = models.ForeignKey(
         Category,
         on_delete=models.CASCADE,
