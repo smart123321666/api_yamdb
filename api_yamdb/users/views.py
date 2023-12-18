@@ -7,7 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-from api.permissions import IsAdmin
+#from api.permissions import IsAdmin
 from .serializers import (CodeConfirmSerializer, CustomUserCreationSerializer,
                           CustomUserSerializer)
 
@@ -18,7 +18,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset= User.objects.all()
     serializer_class = CustomUserSerializer
     http_method_names = ['get','post','patch','delete']
-    permission_classes = (IsAdmin,)
+    #permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter)
     lookup_field = 'username'
     search_fields = ['username']
@@ -60,8 +60,8 @@ class UserSignUpView(views.APIView):
         return Response({'email':email, 'username':username},
                         status=status.HTTP_200_OK)
 
-class TokenObtaionView(views.APIView):
-    permission_classes=('')
+class TokenObtainView(views.APIView):
+    permission_classes=(permissions.AllowAny,)
 
     def post(self, request):
         serializer = CodeConfirmSerializer(data=request.data)

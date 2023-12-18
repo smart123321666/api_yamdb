@@ -18,6 +18,7 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'api.apps.ApiConfig',
+    'users.apps.UsersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -101,12 +102,15 @@ USE_L10N = True
 
 USE_TZ = True
 
-EMAIL_HOST_USER = 'yamdb@yandex.ru'
+
 # Static files (CSS, JavaScript, Images)
 
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
+
+AUTH_USER_MODEL = 'users.CustomUser'
+# Internationalization
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

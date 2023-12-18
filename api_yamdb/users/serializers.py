@@ -17,7 +17,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = ('first_name','last_name',
                   'username','email','bio','role',)
 
-class CustomCreationSerializer(serializers.ModelSerializer):
+class CustomUserCreationSerializer(serializers.ModelSerializer):
 
     email = serializers.EmailField(
         validators=[validators.UniqueValidator(queryset=User.objects.all())]
