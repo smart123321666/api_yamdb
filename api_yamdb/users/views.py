@@ -60,8 +60,8 @@ class UserSignUpView(views.APIView):
         return Response({'email':email, 'username':username},
                         status=status.HTTP_200_OK)
 
-class TokenObtaionView(views.APIView):
-    permission_classes=('')
+class TokenObtainView(views.APIView):
+    permission_classes=(permissions.AllowAny,)
 
     def post(self, request):
         serializer = CodeConfirmSerializer(data=request.data)

@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'django_filters',
     'reviews',
     'api',
+    'users',
 ]
 
 """ 'rest_framework.authtoken', """
@@ -89,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+AUTH_USER_MODEL = 'users.CustomUser'
 # Internationalization
 
 LANGUAGE_CODE = 'en-us'
