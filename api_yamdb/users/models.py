@@ -1,5 +1,5 @@
 import uuid
-
+from django.core.validators import EmailValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -13,13 +13,14 @@ class CustomUser(AbstractUser):
         (MODERATOR, 'moderator'),
         (ADMIN, 'admin'),
     ]
-
+    email = models.EmailField(
+        'email',
+        max_length=254,
+        unique=True,
+        validators=[EmailValidator])
     role = models.CharField('Роль', max_length=100,
                             choices=ROLE_CHOICES,
                             default=USER)
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
     bio = models.TextField('Биография', blank=True, null=True)
     confirmation_code = models.CharField(max_length=70,
                                          unique=True,
