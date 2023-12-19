@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -23,7 +22,7 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
-        allow_null = True,
+        allow_null=True,
         slug_field='name'
     )
     category = serializers.SlugRelatedField(
