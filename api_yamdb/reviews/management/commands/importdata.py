@@ -15,7 +15,9 @@ class Command(BaseCommand):
         path = options['path']
         files_csv = os.listdir(path)
         files_csv.remove('users.csv')
+        files_csv.sort()
         category, comments, genre, genre_title, review, titles = files_csv
+        print(files_csv)
 
         category_path = path + '/' + category
         df_category = pd.read_csv(category_path)
