@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
 
-#from api.permissions import IsAdmin
+from api.permissions import IsAdmin
 from .serializers import (CodeConfirmSerializer, CustomUserCreationSerializer,
                           CustomUserSerializer)
 
@@ -19,8 +19,8 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset= User.objects.all()
     serializer_class = CustomUserSerializer
     http_method_names = ['get','post','patch','delete']
-    # permission_classes = (IsAdmin,) - Нужно подключить новые правила!
-    filter_backends = (filters.SearchFilter)
+    permission_classes = (IsAdmin,)
+    filter_backends = (filters.SearchFilter,)
     lookup_field = 'username'
     search_fields = ['username']
 
