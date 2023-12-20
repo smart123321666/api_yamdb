@@ -38,7 +38,7 @@ v1_router.register(
     basename='comment'
 )
 
-v1_router.register(r'users', UserViewSet, basename='users')
+#v1_router.register(r'users', UserViewSet, basename='users') - Это в отельный urls нужно перенести!
 urlpatterns = [
     path('v1/', include(v1_router.urls)),
     path('v1/auth/signup/', UserSignUpView.as_view(), name='signup'),

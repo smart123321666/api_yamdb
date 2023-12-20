@@ -19,7 +19,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset= User.objects.all()
     serializer_class = CustomUserSerializer
     http_method_names = ['get','post','patch','delete']
-    permission_classes = (IsAdmin,)
+    # permission_classes = (IsAdmin,) - Нужно подключить новые правила!
     filter_backends = (filters.SearchFilter)
     lookup_field = 'username'
     search_fields = ['username']
