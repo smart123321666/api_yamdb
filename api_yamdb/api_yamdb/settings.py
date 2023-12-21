@@ -27,9 +27,8 @@ INSTALLED_APPS = [
     'reviews',
     'api',
     'users',
+    'rest_framework.authtoken',
 ]
-
-""" 'rest_framework.authtoken', """
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
