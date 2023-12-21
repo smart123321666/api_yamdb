@@ -1,6 +1,6 @@
 import django_filters
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets, filters
+from rest_framework import  viewsets, filters
 # from rest_framework import mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
@@ -8,7 +8,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from api.serializers import (
     CategorySerializer,
     GenreSerializer,
-    TitleCreateAndUpdateSerializer,
     TitleSerializer,
     ReviewSerializer,
     CommentSerializer
@@ -63,23 +62,10 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
-
-    def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
-            return TitleCreateAndUpdateSerializer
-        return TitleSerializer
-
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
