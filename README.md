@@ -13,7 +13,110 @@
 + Комментарии (Comments) к отзывам: получить список всех комментариев к отзыву по id, создать новый комментарий для отзыва, получить комментарий для отзыва по id, частично обновить комментарий к отзыву по id, удалить комментарий к отзыву по id.
 
 
+### Как запустить проект:
 
-Проект написан на Python 3.7+ и использует Django 3.2. Для приложения настроен Continuous Integration (CI) и Continuous Deployment (CD). Стек технологий также включает PyJWT 2.1.0, asgiref 3.3.2, django-filter 2.4.0, djangorestframework-simplejwt 4.8.0, и djangorestframework 3.12.4.
+Клонировать репозиторий и перейти в него в командной строке:
 
-Вы можете найти больше информации о проекте на странице его репозитория.
+```
+git@github.com:smart123321666/api_yamdb.git
+```
+
+```
+cd api_yamdb
+```
+
+Cоздать и активировать виртуальное окружение:
+
+```
+python3 -m venv env
+```
+
+```
+source env/bin/activate
+```
+
+Установить зависимости из файла requirements.txt:
+
+```
+python3 -m pip install --upgrade pip
+```
+
+```
+pip install -r requirements.txt
+```
+
+Выполнить миграции:
+
+```
+python3 manage.py migrate
+```
+Установка демо данных:
+
+```
+python3 manage.py importusers static/data/users.csv
+python3 manage.py importdata static/data
+```
+
+Запустить проект:
+
+```
+python3 manage.py runserver
+```
+
+#### Документация для API Yamdb доступна по адресу:
+
+```
+http://127.0.0.1:8000/redoc/
+```
+
+#### Примеры запросов
+
+Пример POST-запроса:
+
+```
+GET .../api/v1/categories/
+```
+
+Пример ответа:
+
+```
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "name": "Фильм",
+            "slug": "movie"
+        },
+        {
+            "name": "Книга",
+            "slug": "book"
+        },
+        {
+            "name": "Музыка",
+            "slug": "music"
+        }
+    ]
+}
+```
+
+
+#### Используемая версия Python:  3.11
+
+
+#### Основный используемые библиотеки в проекте:
+
+Django==3.2.16
+pytest==6.2.4
+pytest-pythonpath==0.7.3
+pytest-django==4.4.0
+djangorestframework==3.12.4
+djangorestframework-simplejwt==4.7.2
+djoser==2.1.0
+Pillow==9.3.0
+PyJWT==2.1.0
+requests==2.26.0
+Pandas==
+
+### Автор проекта на [GitHub](//////)
