@@ -8,13 +8,14 @@ from rest_framework.pagination import LimitOffsetPagination
 from api.serializers import (
     CategorySerializer,
     GenreSerializer,
+    TitleCreateAndUpdateSerializer,
     TitleSerializer,
     ReviewSerializer,
     CommentSerializer
 )
 
 from reviews.models import Category, Genre, Review, Title
-from api.permissions import IsAdminOrReadOnly
+from api.permissions import IsAdminOrReadOnly,IsOwner
 
 
 class CustomPagination(LimitOffsetPagination):
@@ -67,10 +68,23 @@ class TitleViewSet(viewsets.ModelViewSet):
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
 
+    def get_serializer_class(self):
+        if self.request.method in ('POST', 'PATCH'):
+            return TitleCreateAndUpdateSerializer
+        return TitleSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsOwner,)
     pagination_class = CustomPagination
 
     def get_title(self):
@@ -88,7 +102,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsOwner,)
     pagination_class = CustomPagination
 
     def get_review(self):
