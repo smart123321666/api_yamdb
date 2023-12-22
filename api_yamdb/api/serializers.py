@@ -1,6 +1,7 @@
-from django.contrib.auth import get_user_model
+
+from django.utils import timezone
+from django.forms import ValidationError
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Category, Title, Review, Genre
 
@@ -23,7 +24,7 @@ class TitleSerializer(serializers.ModelSerializer):
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
-        allow_null = True,
+        allow_null=True,
         slug_field='name'
     )
     category = serializers.SlugRelatedField(

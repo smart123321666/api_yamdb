@@ -11,8 +11,14 @@ from rest_framework_simplejwt.tokens import AccessToken
 from api.permissions import IsAdmin
 from .serializers import (CodeConfirmSerializer, CustomUserCreationSerializer,
                           CustomUserSerializer)
+from rest_framework.pagination import LimitOffsetPagination
 
 User = get_user_model()
+
+
+class CustomPagination(LimitOffsetPagination):
+    default_limit = 10
+    max_limit = 100
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -20,6 +26,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
     http_method_names = ['get','post','patch','delete']
     permission_classes = (IsAdmin,)
+    pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     lookup_field = 'username'
     search_fields = ['username']
