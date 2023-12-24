@@ -65,25 +65,14 @@ class TitleViewSet(viewsets.ModelViewSet):
     serializer_class = TitleSerializer
     permission_classes = (IsAdminOrReadOnly,)
     pagination_class = CustomPagination
-    filter_backends = (DjangoFilterBackend,)
-    filterset_fields = ('name', 'year', 'category__slug', 'genre__slug',)
+    filter_backends = (DjangoFilterBackend, )
     filterset_class = TitleFilter
-    ordering_fields = ['name', 'year']
 
     def get_serializer_class(self):
-        if self.request.method in ('POST', 'PATCH'):
-            return TitleCreateAndUpdateSerializer
+        if self.action in ('list', 'retrieve'):
+            return TitleSerializer
         return TitleSerializer
 
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        genre_slug = self.request.query_params.get('genre')
-        category_slug = self.request.query_params.get('category')
-        if genre_slug:
-            queryset = queryset.filter(genre__slug=genre_slug)
-        if category_slug:
-            queryset = queryset.filter(category__slug=category_slug)
-        return queryset
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
