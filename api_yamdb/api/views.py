@@ -14,7 +14,7 @@ from api.serializers import (
 )
 
 from reviews.models import Category, Genre, Review, Title
-from api.permissions import IsAuthenticatedAuthororReadOnly
+from api.permissions import IsAuthenticatedAuthororReadOnly, ReadOnly, IsAdmin
 
 
 class CustomPagination(LimitOffsetPagination):
@@ -62,10 +62,15 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions() 
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
