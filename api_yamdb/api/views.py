@@ -44,19 +44,29 @@ class TitleFilter(django_filters.FilterSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions() 
 
 
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+
+    def get_permissions(self):
+        if self.action == 'retrieve' or self.action == 'list':
+            return (ReadOnly(),)
+        return super().get_permissions() 
 
 
 class TitleViewSet(viewsets.ModelViewSet):
