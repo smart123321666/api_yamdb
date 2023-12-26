@@ -8,18 +8,20 @@ from reviews.models import Comment, Category, Title, Review, Genre
 User = get_user_model()
 
 
-class CategorySerializer(serializers.ModelSerializer):
+class CategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         fields = ['name', 'slug']
         model = Category
+        lookup_field = 'slug'
 
 
-class GenreSerializer(serializers.ModelSerializer):
+class GenreSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         fields = ['name', 'slug']
         model = Genre
+        lookup_field = 'slug'
 
 
 class TitleSerializer(serializers.ModelSerializer):

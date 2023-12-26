@@ -4,6 +4,8 @@ from rest_framework import permissions, viewsets, filters
 # from rest_framework import mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.response import Response
+from rest_framework import status
 
 from api.serializers import (
     CategorySerializer,
@@ -48,11 +50,21 @@ class CategoryViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
     def get_permissions(self):
-        if self.action == 'retrieve' or self.action == 'list':
+        if self.action == 'list':
             return (ReadOnly(),)
-        return super().get_permissions() 
+        return super().get_permissions()
+    
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def partial_update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -62,11 +74,21 @@ class GenreViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
+    lookup_field = 'slug'
 
     def get_permissions(self):
-        if self.action == 'retrieve' or self.action == 'list':
+        if self.action == 'list':
             return (ReadOnly(),)
-        return super().get_permissions() 
+        return super().get_permissions()
+    
+    def retrieve(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    
+    def partial_update(self, request, *args, **kwargs):
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class TitleViewSet(viewsets.ModelViewSet):
