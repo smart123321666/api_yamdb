@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, MaxLengthValidator
 
 
 MAXIMUM_LENGHT_OF_HEDERS = 256
@@ -43,7 +43,10 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(
         'Наименование произведения',
-        max_length=200
+        max_length=256,
+        validators=[
+            MaxLengthValidator(256)
+        ]
     )
     year = models.IntegerField(
         'Год'
