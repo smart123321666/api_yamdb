@@ -11,6 +11,7 @@ from api.serializers import (
     CategorySerializer,
     GenreSerializer,
     TitleSerializer,
+    TitleSerializerCreateUpdate,
     ReviewSerializer,
     CommentSerializer
 )
@@ -30,11 +31,11 @@ class TitleFilter(django_filters.FilterSet):
         lookup_expr='icontains'
     )
     category = django_filters.CharFilter(
-        field_name='category__name',
+        field_name='category__slug',
         lookup_expr='contains'
     )
     genre = django_filters.CharFilter(
-        field_name='genre__name',
+        field_name='genre__slug',
         lookup_expr='icontains'
     )
 
@@ -51,6 +52,7 @@ class CategoryViewSet(viewsets.ModelViewSet):
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    #http_method_names = ['list', 'delete', 'post']
 
     def get_permissions(self):
         if self.action == 'list':
@@ -93,22 +95,29 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
-    serializer_class = TitleSerializer
+    serializer_class = TitleSerializerCreateUpdate
     permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
+    http_method_names = ['get', 'post', 'head', 'patch', 'delete']
 
     def get_permissions(self):
         if self.action == 'retrieve' or self.action == 'list':
             return (ReadOnly(),)
         return super().get_permissions()
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return TitleSerializer
+        return TitleSerializerCreateUpdate
+
 
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
 
     def get_title(self):
@@ -118,10 +127,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
         return self.get_title().reviews.all()
 
     def perform_create(self, serializer):
+        print(self.request.user, "!!!!!!!!!!")
         return serializer.save(
             author=self.request.user,
-            post=self.get_title()
+            title=self.get_title()
         )
+    
+    """ def create(self, request, *args, **kwargs):
+        print(request.user.id, "!!!!!!!!!!")
+        return self.serializer.save(
+            author=request.user,
+            post=self.get_title()
+        ) """
 
 
 class CommentViewSet(viewsets.ModelViewSet):
@@ -138,7 +155,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         return serializer.save(
             author=self.request.user,
-            post=self.get_review()
+            review=self.get_review()
         )
 
 

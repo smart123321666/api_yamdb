@@ -27,15 +27,16 @@ class GenreSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    def create(self, instance, validated_data):
-        categoy_data = validated_data.pop('gategory')
-        genre_data = validated_data.pop('genre')
-        category = Category.objects.get(slug=categoy_data['slug'])
-        genre = Genre.objects.get(slug=genre_data['slug'])
-        title = Title.objects.create(category=category, genre=genre, **validated_data)
-        return title
-    
-    """ genre = serializers.SlugRelatedField(
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        fields = '__all__'
+        model = Title
+
+
+class TitleSerializerCreateUpdate(serializers.ModelSerializer):    
+    genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
         allow_null=True,
@@ -44,9 +45,7 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
-    ) """
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    )
 
     class Meta:
         fields = '__all__'
@@ -67,6 +66,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'score', 'author', 'text', 'pub_date']
         model = Review
+        ead_only_fields = ('author',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -77,3 +77,4 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
+        read_only_fields = ['author', 'review']
