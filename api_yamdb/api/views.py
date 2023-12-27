@@ -133,11 +133,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
             title=self.get_title()
         )
     
-    """ def create(self, request, *args, **kwargs):
-        print(request.user.id, "!!!!!!!!!!")
-        return self.serializer.save(
-            author=request.user,
-            post=self.get_title()
+    """ def create(self, serializer):
+        print(self.request.user.id, "!!!!!!!!!!")
+        return serializer.save(
+            author=self.request.user,
+            title_id=self.get_title()
         ) """
 
 
