@@ -4,6 +4,8 @@ from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Category, Title, Review, Genre
 
+from rest_framework import status
+
 
 User = get_user_model()
 
@@ -29,16 +31,23 @@ class TitleSerializer(serializers.ModelSerializer):
         queryset=Genre.objects.all(),
         many=True,
         allow_null=True,
-        slug_field='name'
+        slug_field='slug'
     )
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
-        slug_field='name'
+        slug_field='slug'
     )
+    """ genre = GenreSerializer(many=True)
+    category = CategorySerializer() """
 
     class Meta:
         fields = '__all__'
         model = Title
+    
+    """ def validate(self, data):
+        if len(data['name']) > 256:
+            raise serializers.ValidationError(status=status.HTTP_400_BAD_REQUEST)
+        return data """
 
 
 class ReviewSerializer(serializers.ModelSerializer):

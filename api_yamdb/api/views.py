@@ -1,6 +1,6 @@
 import django_filters
 from django.shortcuts import get_object_or_404
-from rest_framework import permissions, viewsets, filters
+from rest_framework import viewsets, filters
 # from rest_framework import mixins
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
@@ -94,7 +94,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = (IsAdminOrReadOnly,)
+    permission_classes = (IsAdmin,)
     pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
@@ -102,7 +102,11 @@ class TitleViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action == 'retrieve' or self.action == 'list':
             return (ReadOnly(),)
-        return super().get_permissions() 
+        return super().get_permissions()
+
+    def create(self, request, *args, **kwargs):
+        print(args, '!!!!!!!!!!!!')
+        return super().create(request, *args, **kwargs)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
