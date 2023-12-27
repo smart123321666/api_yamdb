@@ -60,21 +60,21 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='username'
+        slug_field='username', read_only=True,
     )
 
     class Meta:
         fields = ['id', 'score', 'author', 'text', 'pub_date']
         model = Review
-        ead_only_fields = ('author',)
+        read_only_fields = ('author', 'title', 'id', 'pub_date')
 
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        queryset=User.objects.all(), slug_field='username'
+        slug_field='username', read_only=True,
     )
 
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
-        read_only_fields = ['author', 'review']
+        read_only_fields = ('author', 'title', 'id', 'pub_date')

@@ -133,12 +133,18 @@ class ReviewViewSet(viewsets.ModelViewSet):
             title=self.get_title()
         )
     
-    """ def create(self, serializer):
-        print(self.request.user.id, "!!!!!!!!!!")
-        return serializer.save(
-            author=self.request.user,
-            title_id=self.get_title()
-        ) """
+    """ def create(self, request, *args, **kwargs):
+        serializer = ReviewSerializer(data=request.data)
+
+        print(self.request.user.id, request.data, kwargs,serializer.is_valid(),serializer.errors, "!!!!!!!!!!")
+        if serializer.is_valid():
+            serializer.save(
+                author=self.request.user,
+                title_id=kwargs['title_id']
+            )
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED) """
+    
 
 
 class CommentViewSet(viewsets.ModelViewSet):
