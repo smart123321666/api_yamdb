@@ -104,9 +104,6 @@ class TitleViewSet(viewsets.ModelViewSet):
             return (ReadOnly(),)
         return super().get_permissions()
 
-    def create(self, request, *args, **kwargs):
-        print(args, '!!!!!!!!!!!!')
-        return super().create(request, *args, **kwargs)
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

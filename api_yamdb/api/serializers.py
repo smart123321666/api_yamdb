@@ -27,7 +27,15 @@ class GenreSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class TitleSerializer(serializers.ModelSerializer):
-    genre = serializers.SlugRelatedField(
+    def create(self, instance, validated_data):
+        categoy_data = validated_data.pop('gategory')
+        genre_data = validated_data.pop('genre')
+        category = Category.objects.get(slug=categoy_data['slug'])
+        genre = Genre.objects.get(slug=genre_data['slug'])
+        title = Title.objects.create(category=category, genre=genre, **validated_data)
+        return title
+    
+    """ genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
         allow_null=True,
@@ -36,9 +44,9 @@ class TitleSerializer(serializers.ModelSerializer):
     category = serializers.SlugRelatedField(
         queryset=Category.objects.all(),
         slug_field='slug'
-    )
-    """ genre = GenreSerializer(many=True)
-    category = CategorySerializer() """
+    ) """
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
 
     class Meta:
         fields = '__all__'
@@ -48,6 +56,7 @@ class TitleSerializer(serializers.ModelSerializer):
         if len(data['name']) > 256:
             raise serializers.ValidationError(status=status.HTTP_400_BAD_REQUEST)
         return data """
+
 
 
 class ReviewSerializer(serializers.ModelSerializer):
