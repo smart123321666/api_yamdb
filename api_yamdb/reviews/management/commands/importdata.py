@@ -56,7 +56,7 @@ class Command(BaseCommand):
             Review.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author'],
+                author=row['author_id'],
                 score=row['score'],
                 pub_date=row['pub_date'],
                 title_id=row['title_id'],
@@ -69,7 +69,7 @@ class Command(BaseCommand):
             Comment.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author'],
+                author=row['author_id'],
                 pub_date=row['pub_date'],
                 review_id=row['review_id'],
             )
