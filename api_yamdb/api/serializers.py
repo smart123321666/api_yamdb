@@ -39,20 +39,18 @@ class TitleSerializer(serializers.ModelSerializer):
 class TitleCreateAndUpdateSerializer(serializers.ModelSerializer):
     """Сериализатор создания или редактирования произведения."""
 
-    genre = serializers.SlugRelatedField(
-        queryset=Genre.objects.all(),
-        many=True,
-        allow_null=True,
-        slug_field='name'
-    )
-    category = serializers.SlugRelatedField(
-        queryset=Category.objects.all(),
-        slug_field='name'
-    )
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Title
         fields = '__all__'
+
+    def get_rating(self, obj):
+        rating = Review.objects.filter(
+            title=obj.id).aggregate(Avg('score'))
+        return rating['score__avg']
 
 
 class ReviewSerializer(serializers.ModelSerializer):
