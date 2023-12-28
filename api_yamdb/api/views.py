@@ -17,7 +17,7 @@ from api.serializers import (
 )
 
 from reviews.models import Category, Genre, Review, Title
-from api.permissions import IsAuthenticatedAuthororReadOnly, ReadOnly, IsAdmin, IsAdminOrReadOnly
+from api.permissions import IsAuthenticatedAuthororReadOnly, ReadOnly, IsAdmin, IsOwner
 
 
 class CustomPagination(LimitOffsetPagination):
@@ -107,16 +107,17 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    permission_classes = (IsOwner,)
     pagination_class = CustomPagination
+    http_method_names = ['get', 'post', 'head', 'delete', 'patch']
 
-    def get_permissions(self):
+    """ def get_permissions(self):
         if self.action == 'retrieve' or self.action == 'list':
             return (ReadOnly(),)
         if self.request.user.role == 'admin' or self.request.user.role == 'moderator':
-            print(self.request.user.role, '!!!!!!!!!')
+            print(self.request.user.role)
             return (IsAdmin(),)
-        return super().get_permissions()
+        return super().get_permissions() """
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -134,8 +135,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticatedAuthororReadOnly,)
+    permission_classes = (IsOwner,)
     pagination_class = CustomPagination
+    http_method_names = ['get', 'post', 'head', 'delete', 'patch']
 
     def get_review(self):
         return get_object_or_404(Review, pk=self.kwargs.get('review_id'))
