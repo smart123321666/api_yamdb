@@ -111,14 +111,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'delete', 'patch']
 
-    """ def get_permissions(self):
-        if self.action == 'retrieve' or self.action == 'list':
-            return (ReadOnly(),)
-        if self.request.user.role == 'admin' or self.request.user.role == 'moderator':
-            print(self.request.user.role)
-            return (IsAdmin(),)
-        return super().get_permissions() """
-
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 

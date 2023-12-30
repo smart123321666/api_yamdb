@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from reviews.models import Comment, Category, Title, Review, Genre
 
@@ -66,19 +66,29 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'score', 'author', 'text', 'pub_date']
         model = Review
-        read_only_fields = ('author', 'title', 'id', 'pub_date')
+        read_only_fields = ('id', 'pub_date')
+    
 
-    def create(self, validated_data):
+    """ def create(self, validated_data):
         title_id = self.context['view'].kwargs['title_id']
         author = self.context.get('request').user
         title = Title.objects.get(id=title_id)
         existing_rewiews = Review.objects.filter(title=title, author=author).exists()
         if existing_rewiews:
             return serializers.ValidationError('Вы уже оставили отзыв!')
-        """ validated_data['title'] = title
-        validated_data['author'] = author """
+        validated_data['title'] = title
+        validated_data['author'] = author
 
-        #return super().create(validated_data)
+        return super().create(validated_data) """
+    
+    def validate_text(self, value):
+        title_id = self.context['view'].kwargs['title_id']
+        author = self.context.get('request').user
+        title = Title.objects.get(id=title_id)
+        existing_rewiews = Review.objects.filter(title=title, author=author).exists()
+        if existing_rewiews:
+            raise serializers.ValidationError('Вы уже оставили отзыв!')
+        return value
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -89,4 +99,4 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
-        read_only_fields = ('author', 'title', 'id', 'pub_date')
+        read_only_fields = ('id', 'pub_date')
