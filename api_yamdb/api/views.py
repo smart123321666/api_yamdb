@@ -6,6 +6,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.validators import ValidationError
+from django.db.models import Avg, OuterRef, Subquery
+from django.db.models.functions import Coalesce
 
 from api.serializers import (
     CategorySerializer,
@@ -103,6 +106,18 @@ class TitleViewSet(viewsets.ModelViewSet):
             return TitleSerializer
         return TitleSerializerCreateUpdate
 
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        reviews = Review.objects.filter(title=instance)
+        if reviews.exists():
+            rating = reviews.aggregate(Avg('score'))['score__avg']
+            instance.rating = round(rating, 2)
+            instance.save()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -117,11 +132,11 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return self.get_title().reviews.all()
 
-    def perform_create(self, serializer):
+    """ def perform_create(self, serializer):
         return serializer.save(
-            author=self.request.user,
-            title=self.get_title()
-        )
+                author=self.request.user,
+                title=self.get_title()
+        ) """
     
 
 

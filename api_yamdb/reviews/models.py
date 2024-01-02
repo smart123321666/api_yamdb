@@ -104,16 +104,7 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         ordering = ('pub_date',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['title', 'author'],
-                name="unique_relationships",
-            ),
-            models.CheckConstraint(
-                check=~models.Q(title=models.F('author')),
-                name='prevent_self_follow',
-            ),
-        ]
+        unique_together = ('title', 'author')
 
     def __str__(self):
         return self.text
