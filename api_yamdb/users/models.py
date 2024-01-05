@@ -1,7 +1,9 @@
 import uuid
-from django.core.validators import EmailValidator
+
 from django.contrib.auth.models import AbstractUser
+from django.core.validators import EmailValidator
 from django.db import models
+
 
 class CustomUser(AbstractUser):
     USER = 'user'
@@ -21,13 +23,13 @@ class CustomUser(AbstractUser):
     role = models.CharField('Роль', max_length=100,
                             choices=ROLE_CHOICES,
                             default=USER)
-
     bio = models.TextField('Биография', blank=True, null=True)
     confirmation_code = models.CharField(max_length=70,
                                          unique=True,
                                          blank=True,
                                          null=True,
                                          default=uuid.uuid4)
+
     @property
     def is_admin(self):
         return self.role == self.ADMIN or self.is_superuser

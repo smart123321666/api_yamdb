@@ -1,8 +1,9 @@
 import os
-import pandas as pd
 import sqlite3
+
+import pandas as pd
 from django.core.management.base import BaseCommand
-from reviews.models import Category, Genre, Title, Review, Comment
+from reviews.models import Category, Comment, Genre, Review, Title
 
 
 class Command(BaseCommand):
@@ -56,7 +57,7 @@ class Command(BaseCommand):
             Review.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author'],
+                author=row['author_id'],
                 score=row['score'],
                 pub_date=row['pub_date'],
                 title_id=row['title_id'],
@@ -69,7 +70,7 @@ class Command(BaseCommand):
             Comment.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author'],
+                author=row['author_id'],
                 pub_date=row['pub_date'],
                 review_id=row['review_id'],
             )
