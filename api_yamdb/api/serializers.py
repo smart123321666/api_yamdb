@@ -1,10 +1,8 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator, UniqueValidator
 
 from reviews.models import Comment, Category, Title, Review, Genre
 
-from rest_framework import status
 from django.http import Http404
 from django.db.models import Avg
 
@@ -12,27 +10,25 @@ from django.db.models import Avg
 User = get_user_model()
 
 
-class CategorySerializer(serializers.HyperlinkedModelSerializer):
+class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ['name', 'slug']
         model = Category
+        exclude = ('id',)
         lookup_field = 'slug'
 
 
-class GenreSerializer(serializers.HyperlinkedModelSerializer):
+class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
-        fields = ['name', 'slug']
         model = Genre
+        exclude = ('id',)
         lookup_field = 'slug'
 
 
 
-
-
-class TitleSerializerCreateUpdate(serializers.ModelSerializer):    
-    genre = serializers.SlugRelatedField(
+class TitleSerializerCreateUpdate(serializers.ModelSerializer):    # Переделать
+    """ genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
         allow_null=True,
@@ -45,39 +41,64 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):
 
     class Meta:
         fields = '__all__'
-        model = Title
+        model = Title """
     
-    """ def validate(self, data):
-        if len(data['name']) > 256:
-            raise serializers.ValidationError(status=status.HTTP_400_BAD_REQUEST)
-        return data """
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+
+    class Meta:
+        model = Title
+        fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
+    
+    def create(self, validated_data):
+        print(self.context, '!!!!!!!!!!!!!!!!!!!!')
+        genre = validated_data.pop('genre')
+        category = validated_data.pop('category')
+        title = Title.objects.create(**validated_data)
+
+        return super().create(validated_data)
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.IntegerField(default=None)
+
+    class Meta:
+        model = Title
+        fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
+    
+    def create(self, validated_data):
+        print(self.context, '!!!!!!!!!!!!!!!!!!!!')
+        genre = validated_data.pop('genre')
+        category = validated_data.pop('category')
+        title = Title.objects.create(**validated_data)
+
+        return super().create(validated_data)
+    
+    """ def get_rating(self, obj):
+        return int(obj.rating) """
 
 
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username', read_only=True, default=serializers.CurrentUserDefault(),
+        slug_field='username', read_only=True
     )
 
     class Meta:
         fields = ['id', 'score', 'author', 'text', 'pub_date']
         model = Review
-        read_only_fields = ('id', 'pub_date', 'title')
-    
 
-    def create(self, validated_data):
+    
+    def validate(self, data):
         title_id = self.context['view'].kwargs['title_id']
         author = self.context.get('request').user
-        try:
-            title = Title.objects.get(id=title_id)
-        except Title.DoesNotExist:
-            raise Http404("Title matching query does not exist.")
-        existing_rewiews = Review.objects.filter(title=title, author=author).exists()
-        if existing_rewiews:
-            raise serializers.ValidationError('Вы уже оставили отзыв!')
-        score = validated_data.pop('score')
-        review = Review.objects.create(title=title, author=author, score=score, **validated_data)
-        return review
+        if self.instance is None:
+            existing_reviews = Review.objects.filter(title_id=title_id, author=author).exists()
+            if existing_reviews:
+                raise serializers.ValidationError('Вы уже оставили отзыв!')
+        return data
 
 
 class CommentSerializer(serializers.ModelSerializer):
@@ -88,21 +109,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
-        read_only_fields = ('id', 'pub_date')
-
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-    rating = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Title
-        fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
-
-    def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        if reviews.exists():
-            return round(reviews.aggregate(Avg('score'))['score__avg'], 2)
-        return None

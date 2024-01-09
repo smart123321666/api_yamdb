@@ -38,7 +38,7 @@ v1_router.register(
     basename='comment'
 )
 v1_router.register(
-    r'users',
+    'users',
     UserViewSet,
     basename='users'
 )
