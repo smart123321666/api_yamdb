@@ -27,8 +27,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 
-class TitleSerializerCreateUpdate(serializers.ModelSerializer):    # Переделать
-    """ genre = serializers.SlugRelatedField(
+class TitleSerializerCreateUpdate(serializers.ModelSerializer):    
+    genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
         allow_null=True,
@@ -41,44 +41,23 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):    # Перед�
 
     class Meta:
         fields = '__all__'
-        model = Title """
-    
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-
-    class Meta:
         model = Title
-        fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
     
-    def create(self, validated_data):
-        print(self.context, '!!!!!!!!!!!!!!!!!!!!')
-        genre = validated_data.pop('genre')
-        category = validated_data.pop('category')
-        title = Title.objects.create(**validated_data)
-
-        return super().create(validated_data)
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['genre'] = [{'name': genre.name, 'slug': genre.slug} for genre in instance.genre.all()]
+        representation['category'] = {'name': instance.category.name, 'slug': instance.category.slug}
+        return representation
 
 
 class TitleSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     category = CategorySerializer()
-    rating = serializers.IntegerField(default=None)
+    rating = serializers.IntegerField(default=None,)
 
     class Meta:
         model = Title
         fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
-    
-    def create(self, validated_data):
-        print(self.context, '!!!!!!!!!!!!!!!!!!!!')
-        genre = validated_data.pop('genre')
-        category = validated_data.pop('category')
-        title = Title.objects.create(**validated_data)
-
-        return super().create(validated_data)
-    
-    """ def get_rating(self, obj):
-        return int(obj.rating) """
-
 
 
 class ReviewSerializer(serializers.ModelSerializer):

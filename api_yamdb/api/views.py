@@ -20,10 +20,6 @@ from api.filtres import TitleFilter
 from reviews.models import Category, Genre, Review, Title
 
 
-class CustomPagination(LimitOffsetPagination):
-    default_limit = 10
-
-
 class CategoryViewSet(
     mixins.CreateModelMixin,
     mixins.DestroyModelMixin,
@@ -33,7 +29,6 @@ class CategoryViewSet(
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
     permission_classes = (IsAdmin,)
-    pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -53,7 +48,6 @@ class GenreViewSet(
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = (IsAdmin,)
-    pagination_class = CustomPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
@@ -69,7 +63,6 @@ class TitleViewSet(viewsets.ModelViewSet):
         rating=Avg(F('reviews__score'))
     )
     permission_classes = (IsAdmin,)
-    pagination_class = CustomPagination
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
@@ -96,7 +89,6 @@ class TitleViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsOwner,)
-    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'delete', 'patch']
 
     def get_title(self):
@@ -112,11 +104,9 @@ class ReviewViewSet(viewsets.ModelViewSet):
         )
     
 
-
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsOwner,)
-    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'delete', 'patch']
 
     def get_review(self):
