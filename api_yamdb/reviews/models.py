@@ -17,6 +17,7 @@ def validate_year(value):
     if value > current_year:
         raise ValidationError("Год не может быть больше текущего года.")
 
+
 class Category(models.Model):
     name = models.CharField(
         'Наименование',
