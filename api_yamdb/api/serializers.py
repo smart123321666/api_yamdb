@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Comment, Category, Title, Review, Genre
 
@@ -88,3 +89,5 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
+        read_only_fields = ('author', 'title', 'id', 'pub_date')
+>>>>>>>>> Temporary merge branch 2
