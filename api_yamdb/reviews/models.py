@@ -12,9 +12,6 @@ MAXIMUM_LENGHT_OF_HEDERS = 256
 User = get_user_model()
 
 
-User = get_user_model()
-
-
 def validate_year(value):
     current_year = datetime.datetime.now().year
     if value > current_year:

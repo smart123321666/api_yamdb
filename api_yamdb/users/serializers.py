@@ -18,10 +18,6 @@ class CustomUserCreationSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username')
-        extra_kwargs = {
-            'email': {'required': True},
-            'username': {'required': True},
-        }
 
     def validate_username(self, username):
         if username == 'me':
@@ -30,10 +26,5 @@ class CustomUserCreationSerializer(serializers.ModelSerializer):
 
 
 class CodeConfirmSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
+    username = serializers.CharField(required=True, max_length=150)
     confirmation_code = serializers.CharField(required=True)
-
-    extra_kwargs = {
-        'confirmation_code': {'required': True},
-        'username': {'required': True},
-    }

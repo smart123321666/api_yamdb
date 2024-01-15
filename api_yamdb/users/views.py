@@ -1,6 +1,7 @@
 from api.permissions import IsAdmin
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404
 from rest_framework import filters, permissions, status, views, viewsets
@@ -51,31 +52,26 @@ class UserSignUpView(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
-        email = request.data.get('email')
-        username = request.data.get('username')
-        existing_user = User.objects.filter(email=email).first()
-        existing_email = User.objects.filter(username=username).first()
-        if existing_user and existing_email:
-            return Response({'email': existing_user.email,
-                            'username': existing_email.username},
-                            status=status.HTTP_200_OK)
         serializer = CustomUserCreationSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(username=username)
-            user = User.objects.get(username=username)
-            user.is_active = False
-            user.save()
+        if serializer.is_valid(raise_exception=True):
+            email = serializer.validated_data.get('email')
+            username = serializer.validated_data.get('username')
+
+            existing_user = User.objects.filter(username=username).first()
+            existing_email = User.objects.filter(email=email).first()
+            if (existing_user != None or existing_email != None) or ((existing_user and existing_email) and str(existing_user.username) !=username or str(existing_email.email) != email):
+                return Response(serializer.errors,
+                    status=status.HTTP_400_BAD_REQUEST)
+            user, _ = User.objects.get_or_create(username=username, email=email)
+            confirmation_code = default_token_generator.make_token(user)
             send_mail(subject='Code confirmation',
-                      message=f'Your confirmation is:{user.confirmation_code}',
+                      message=f'Your confirmation code is: {confirmation_code}',
                       from_email=settings.EMAIL_HOST_USER,
                       recipient_list=[email],
                       fail_silently=False)
 
-            return Response({'email': email, 'username': username},
-                            status=status.HTTP_200_OK)
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
+
 
 
 class TokenObtainView(views.APIView):
@@ -87,7 +83,7 @@ class TokenObtainView(views.APIView):
         confirmation_code = serializer.validated_data.get('confirmation_code')
         username = serializer.validated_data.get('username')
         user = get_object_or_404(User, username=username)
-        if user and confirmation_code == user.confirmation_code:
+        if user and default_token_generator.check_token(user, confirmation_code):
             user.is_active = True
             user.save()
             token = AccessToken.for_user(user)

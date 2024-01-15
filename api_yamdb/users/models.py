@@ -1,7 +1,6 @@
 import uuid
 
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import EmailValidator
 from django.db import models
 
 
@@ -17,13 +16,11 @@ class CustomUser(AbstractUser):
     ]
     email = models.EmailField(
         'email',
-        max_length=254,
-        unique=True,
-        validators=[EmailValidator])
+        unique=True,)
     role = models.CharField('Роль', max_length=100,
                             choices=ROLE_CHOICES,
                             default=USER)
-    bio = models.TextField('Биография', blank=True, null=True)
+    bio = models.TextField('Биография', blank=True)
     confirmation_code = models.CharField(max_length=70,
                                          unique=True,
                                          blank=True,
