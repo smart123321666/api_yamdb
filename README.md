@@ -39,7 +39,7 @@ cd api_yamdb
 Cоздать и активировать виртуальное окружение:
 
 ```
-python3 -m venv env
+python -m venv env
 ```
 
 ```
@@ -49,7 +49,7 @@ source env/bin/activate
 Установить зависимости из файла requirements.txt:
 
 ```
-python3 -m pip install --upgrade pip
+python -m pip install --upgrade pip
 ```
 
 ```
@@ -64,8 +64,8 @@ python3 manage.py migrate
 Установка демо данных:
 
 ```
-python3 manage.py importusers static/data/users.csv
-python3 manage.py importdata static/data
+python manage.py importuser static/data/users.csv
+python manage.py importdata static/data
 ```
 
 Запустить проект:

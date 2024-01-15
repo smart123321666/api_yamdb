@@ -1,8 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.db.models import Avg
-from django.http import Http404
 from rest_framework import serializers
-from reviews.models import Category, Comment, Genre, Review, Title
+
+from reviews.models import Comment, Category, Title, Review, Genre
+
+from django.http import Http404
+from django.db.models import Avg
+
 
 User = get_user_model()
 
@@ -10,17 +13,18 @@ User = get_user_model()
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        fields = ['name', 'slug']
         model = Category
+        exclude = ('id',)
         lookup_field = 'slug'
 
 
 class GenreSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
-        fields = ['name', 'slug']
         model = Genre
+        exclude = ('id',)
         lookup_field = 'slug'
+
 
 
 class TitleSerializerCreateUpdate(serializers.ModelSerializer):
@@ -39,12 +43,26 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):
         fields = '__all__'
         model = Title
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['genre'] = [{'name': genre.name, 'slug': genre.slug} for genre in instance.genre.all()]
+        representation['category'] = {'name': instance.category.name, 'slug': instance.category.slug}
+        return representation
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
+    category = CategorySerializer()
+    rating = serializers.IntegerField(default=None,)
+
+    class Meta:
+        model = Title
+        fields = ['id', 'genre', 'category', 'name', 'year', 'description', 'rating']
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
-        slug_field='username',
-        read_only=True,
-        default=serializers.CurrentUserDefault(),
+        slug_field='username', read_only=True
     )
 
     class Meta:
@@ -71,6 +89,16 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review
 
 
+    def validate(self, data):
+        title_id = self.context['view'].kwargs['title_id']
+        author = self.context.get('request').user
+        if self.instance is None:
+            existing_reviews = Review.objects.filter(title_id=title_id, author=author).exists()
+            if existing_reviews:
+                raise serializers.ValidationError('Вы уже оставили отзыв!')
+        return data
+
+
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True,
@@ -79,21 +107,3 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ['id', 'author', 'text', 'pub_date']
         model = Comment
-        read_only_fields = ('id', 'pub_date')
-
-
-class TitleSerializer(serializers.ModelSerializer):
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
-    rating = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Title
-        fields = ['id', 'genre', 'category',
-                  'name', 'year', 'description', 'rating']
-
-    def get_rating(self, obj):
-        reviews = obj.reviews.all()
-        if reviews.exists():
-            return round(reviews.aggregate(Avg('score'))['score__avg'], 2)
-        return None
