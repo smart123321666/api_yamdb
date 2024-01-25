@@ -1,7 +1,8 @@
 import uuid
-
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.forms import ValidationError
 
 
 class CustomUser(AbstractUser):
@@ -26,6 +27,16 @@ class CustomUser(AbstractUser):
                                          blank=True,
                                          null=True,
                                          default=uuid.uuid4)
+    def validate_not_me(value):
+        if value.lower() == 'me':
+            raise ValidationError('The nickname "me" is not allowed.', code='invalid_nickname')
+    username = models.CharField(
+        'username',
+        max_length=150,
+        unique=True,
+        validators=[UnicodeUsernameValidator(),]
+    )
+
 
     @property
     def is_admin(self):

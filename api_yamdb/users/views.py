@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import AccessToken
-
+from rest_framework import filters, serializers
 from .serializers import (CodeConfirmSerializer, CustomUserCreationSerializer,
                           CustomUserSerializer)
 
@@ -48,30 +48,31 @@ class UserViewSet(viewsets.ModelViewSet):
             return Response(data=serializer.data)
 
 
+from rest_framework import status
+
 class UserSignUpView(views.APIView):
     permission_classes = (permissions.AllowAny,)
 
     def post(self, request):
         serializer = CustomUserCreationSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            email = serializer.validated_data.get('email')
-            username = serializer.validated_data.get('username')
-
-            existing_user = User.objects.filter(username=username).first()
-            existing_email = User.objects.filter(email=email).first()
-            if (existing_user != None or existing_email != None) or ((existing_user and existing_email) and str(existing_user.username) !=username or str(existing_email.email) != email):
-                return Response(serializer.errors,
-                    status=status.HTTP_400_BAD_REQUEST)
-            user, _ = User.objects.get_or_create(username=username, email=email)
-            confirmation_code = default_token_generator.make_token(user)
-            send_mail(subject='Code confirmation',
-                      message=f'Your confirmation code is: {confirmation_code}',
-                      from_email=settings.EMAIL_HOST_USER,
-                      recipient_list=[email],
-                      fail_silently=False)
-
-            return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
-
+        try:
+            email = request.data['email']
+            username = request.data['username']
+            user = User.objects.get(email=email, username=username)
+        except (User.DoesNotExist, KeyError):
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            email = serializer.data['email']
+            username = serializer.data['username']
+            user = get_object_or_404(User, username=username)
+        confirmation_code = (default_token_generator.make_token(user))
+        user.save()
+        send_mail(subject='Code confirmation',
+                          message=f'Your confirmation code is: {confirmation_code}',
+                          from_email=settings.EMAIL_HOST_USER,
+                          recipient_list=[email],
+                          fail_silently=False)
+        return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
 
 
 class TokenObtainView(views.APIView):

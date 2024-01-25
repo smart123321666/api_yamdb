@@ -13,7 +13,6 @@ from api.serializers import (
     TitleSerializerCreateUpdate,
     ReviewSerializer,
     CommentSerializer
-    CommentSerializer
 )
 
 from api.permissions import ReadOnly, IsAdmin, IsOwner
@@ -91,9 +90,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsOwner,)
     http_method_names = ['get', 'post', 'head', 'delete', 'patch']
-
-    def get_title(self):
-        return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
 
     def get_title(self):
         return get_object_or_404(Title, pk=self.kwargs.get('title_id'))
