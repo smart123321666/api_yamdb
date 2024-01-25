@@ -1,10 +1,9 @@
 import datetime
+
 from django.contrib.auth import get_user_model
-from django.db import models
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-
-
+from django.db import models
 
 MAXIMUM_LENGHT_OF_HEDERS = 256
 
@@ -27,7 +26,7 @@ class Category(models.Model):
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        )
+    )
 
     class Meta:
         verbose_name = 'Категория'
@@ -49,7 +48,7 @@ class Genre(models.Model):
     slug = models.SlugField(
         unique=True,
         max_length=50,
-        )
+    )
 
     class Meta:
         verbose_name = 'Жанр'
@@ -113,8 +112,10 @@ class Review(models.Model):
         'Оценка',
         default=0,
         validators=[
-            MaxValueValidator(10, ('Оценка не может быть больше %(limit_value)s.')),
-            MinValueValidator(0, ('Оценка не может быть ниже %(limit_value)s.')),
+            MaxValueValidator(10, ('''Оценка не может
+                                   быть больше %(limit_value)s.''')),
+            MinValueValidator(0, ('''Оценка не может
+                                  быть ниже %(limit_value)s.''')),
         ]
     )
     pub_date = models.DateTimeField(
