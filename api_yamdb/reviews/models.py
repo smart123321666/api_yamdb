@@ -1,19 +1,13 @@
-import datetime
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import UniqueConstraint
 
+from api.validators import validate_year
+
 
 User = get_user_model()
-
-
-def validate_year(value):
-    current_year = datetime.datetime.now().year
-    if value > current_year:
-        raise ValidationError("Год не может быть больше текущего года.")
 
 
 class Category(models.Model):
@@ -126,7 +120,8 @@ class Review(models.Model):
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
         constraints = [
-            UniqueConstraint(fields=['title', 'author'], name='unique_title_author')
+            UniqueConstraint(fields=['title', 'author'],
+                             name='unique_title_author')
         ]
         ordering = [
             'pub_date',

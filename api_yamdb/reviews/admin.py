@@ -13,16 +13,19 @@ class GenreAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
-# class TitleAdmin(admin.ModelAdmin):
-#     list_display = (
-#         'name',
-#         'year',
-#         'description',
-#         'genre',
-#         'category'
-#     )
-#     search_fields = ('name',)
-#     list_filter = ('name',)
+class TitleAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'year',
+        'description',
+        'category',
+    )
+    filter_horizontal = (
+        'genre',
+    )
+    search_fields = ('name',)
+    list_filter = ('name',)
+    list_display_links = ('name',)
 
 
 class ReviewAdmin(admin.ModelAdmin):
@@ -33,9 +36,6 @@ class ReviewAdmin(admin.ModelAdmin):
         'score',
         'pub_date'
     )
-    """ list_editable = (
-        'category'
-    ) """
     search_fields = ('author',)
     list_filter = ('pub_date',)
     list_display_links = ('text',)
@@ -49,6 +49,6 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Genre, GenreAdmin)
 admin.site.register(Category, CategoryAdmin)
-# admin.site.register(Title, TitleAdmin)
+admin.site.register(Title, TitleAdmin)
 admin.site.register(Review, ReviewAdmin)
 admin.site.register(Comment, CommentAdmin)

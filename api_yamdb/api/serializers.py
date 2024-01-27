@@ -1,7 +1,9 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+
+from api.validators import validate_username
 from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
@@ -16,16 +18,16 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class CustomUserCreationSerializer(serializers.Serializer):
-    username = serializers.RegexField(r"^[\w.@+-]+\Z$", max_length=settings.MAX_USERNAME_LENGTH)
-    email = serializers.EmailField(required=True, max_length=254)
+    username = serializers.RegexField(r"^[\w.@+-]+\Z$",
+                                      max_length=settings.MAX_USERNAME_LENGTH,
+                                      validators=[UnicodeUsernameValidator(),
+                                                  validate_username])
+    email = serializers.EmailField(required=True,
+                                   max_length=settings.MAX_EMAIL_LENGTH)
+
     class Meta:
         model = User
         fields = ('email', 'username')
-
-    def validate_username(self, username):
-        if username == 'me':
-            raise ValidationError(f'Логин {username} недоступен')
-        return username
 
 
 class CodeConfirmSerializer(serializers.Serializer):

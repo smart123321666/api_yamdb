@@ -117,6 +117,6 @@ djoser==2.1.0
 Pillow==9.3.0
 PyJWT==2.1.0
 requests==2.26.0
-Pandas==
+Pandas==2.2.0
 
-### Автор проекта на [GitHub](//////)
+### Автор проекта на [GitHub](https://github.com/smart123321666)

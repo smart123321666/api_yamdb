@@ -4,7 +4,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
 from django.db.models import Avg, F
 from django.shortcuts import get_object_or_404
-from rest_framework import (filters, mixins, permissions,
+from rest_framework import (filters, permissions,
                             status, views, viewsets)
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -59,16 +59,23 @@ class UserSignUpView(views.APIView):
         email = serializer.validated_data.get('email')
         username = serializer.validated_data.get('username')
         existing_user_by_email = User.objects.filter(email=email).first()
-        existing_user_by_username = User.objects.filter(username=username).first()
+        existing_user_by_username = (
+            User.objects.filter(username=username).first())
 
         if existing_user_by_email != existing_user_by_username:
             error_msg = {}
-            if existing_user_by_email != None and existing_user_by_username != None:
-                error_msg = {'email': ['Пользователь с таким email уже существует.'], 'username': ['Пользователь с таким username уже существует.']}
-            if existing_user_by_email != None:
-                error_msg = {'email': ['Пользователь с таким email уже существует.']}
-            if existing_user_by_username != None:
-                error_msg = {'email': ['Пользователь с таким username уже существует.']}
+            if (existing_user_by_email is not None
+               and existing_user_by_username is not None):
+                error_msg = {'email':
+                             ['Пользователь с таким email уже существует.'],
+                             'username':
+                             ['Пользователь с таким username уже существует.']}
+            if existing_user_by_email is not None:
+                error_msg = {'email':
+                             ['Пользователь с таким email уже существует.']}
+            if existing_user_by_username is not None:
+                error_msg = {'email':
+                             ['Пользователь с таким username уже существует.']}
             return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
 
         user, _ = User.objects.get_or_create(email=email, username=username)
@@ -79,10 +86,9 @@ class UserSignUpView(views.APIView):
             from_email=settings.EMAIL_HOST_USER,
             recipient_list=[email],
             fail_silently=False
-            )
-        return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
-
-
+        )
+        return Response({'email': email, 'username': username},
+                        status=status.HTTP_200_OK)
 
 
 class TokenObtainView(views.APIView):

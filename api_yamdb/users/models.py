@@ -1,11 +1,9 @@
-
-
 from django.conf import settings
-
-from api.validators import validate_username
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
+
+from api.validators import validate_username
 
 
 class CustomUser(AbstractUser):
@@ -30,7 +28,7 @@ class CustomUser(AbstractUser):
         'username',
         max_length=settings.MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator(),validate_username]
+        validators=[UnicodeUsernameValidator(), validate_username]
     )
 
     @property

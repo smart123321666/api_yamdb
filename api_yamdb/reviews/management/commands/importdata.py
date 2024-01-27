@@ -3,7 +3,7 @@ import sqlite3
 
 import pandas as pd
 from django.core.management.base import BaseCommand
-from reviews.models import Category, Comment, Genre, Review, Title
+from reviews.models import Category, Comment, Genre, Review, Title, User
 
 
 class Command(BaseCommand):
@@ -54,10 +54,11 @@ class Command(BaseCommand):
         review_path = path + '/' + review
         df_review = pd.read_csv(review_path)
         for index, row in df_review.iterrows():
+            author_id = int(row['author'])
             Review.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author_id'],
+                author=User.objects.get(id=author_id),
                 score=row['score'],
                 pub_date=row['pub_date'],
                 title_id=row['title_id'],
@@ -70,7 +71,7 @@ class Command(BaseCommand):
             Comment.objects.create(
                 id=row['id'],
                 text=row['text'],
-                author=row['author_id'],
+                author_id=row['author'],
                 pub_date=row['pub_date'],
                 review_id=row['review_id'],
             )
