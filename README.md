@@ -119,4 +119,6 @@ PyJWT==2.1.0
 requests==2.26.0
 Pandas==2.2.0
 
-### Автор проекта на [GitHub](https://github.com/smart123321666)
+### Автор проекта:
+[GitHub Pages](https://github.com/smart123321666)
+[GitHub Pages](https://github.com/TovmaDA)
