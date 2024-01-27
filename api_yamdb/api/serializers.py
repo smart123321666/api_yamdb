@@ -1,5 +1,5 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
-
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from reviews.models import Category, Comment, Genre, Review, Title
@@ -15,8 +15,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
                   'username', 'email', 'bio', 'role',)
 
 
-class CustomUserCreationSerializer(serializers.ModelSerializer):
-
+class CustomUserCreationSerializer(serializers.Serializer):
+    username = serializers.RegexField(r"^[\w.@+-]+\Z$", max_length=settings.MAX_USERNAME_LENGTH)
+    email = serializers.EmailField(required=True, max_length=254)
     class Meta:
         model = User
         fields = ('email', 'username')

@@ -19,7 +19,7 @@ from api.serializers import (
     CodeConfirmSerializer, CustomUserCreationSerializer, CustomUserSerializer
 )
 from reviews.models import Category, Genre, Review, Title
-
+from api.viewsets import CustomBaseViewSet
 
 User = get_user_model()
 
@@ -55,25 +55,34 @@ class UserSignUpView(views.APIView):
 
     def post(self, request):
         serializer = CustomUserCreationSerializer(data=request.data)
-        try:
-            email = request.data['email']
-            username = request.data['username']
-            user = User.objects.get(email=email, username=username)
-        except (User.DoesNotExist, KeyError):
-            serializer.is_valid(raise_exception=True)
-            serializer.save()
-            email = serializer.data['email']
-            username = serializer.data['username']
-            user = get_object_or_404(User, username=username)
-        confirmation_code = (default_token_generator.make_token(user))
-        user.save()
-        send_mail(subject='Code confirmation',
-                  message=f'Your confirmation code is: {confirmation_code}',
-                  from_email=settings.EMAIL_HOST_USER,
-                  recipient_list=[email],
-                  fail_silently=False)
-        return Response({'email': email, 'username': username},
-                        status=status.HTTP_200_OK)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data.get('email')
+        username = serializer.validated_data.get('username')
+        existing_user_by_email = User.objects.filter(email=email).first()
+        existing_user_by_username = User.objects.filter(username=username).first()
+
+        if existing_user_by_email != existing_user_by_username:
+            error_msg = {}
+            if existing_user_by_email != None and existing_user_by_username != None:
+                error_msg = {'email': ['Пользователь с таким email уже существует.'], 'username': ['Пользователь с таким username уже существует.']}
+            if existing_user_by_email != None:
+                error_msg = {'email': ['Пользователь с таким email уже существует.']}
+            if existing_user_by_username != None:
+                error_msg = {'email': ['Пользователь с таким username уже существует.']}
+            return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
+
+        user, _ = User.objects.get_or_create(email=email, username=username)
+        confirmation_code = default_token_generator.make_token(user)
+        send_mail(
+            subject='Code confirmation',
+            message=f'Your confirmation code is: {confirmation_code}',
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+            fail_silently=False
+            )
+        return Response({'email': email, 'username': username}, status=status.HTTP_200_OK)
+
+
 
 
 class TokenObtainView(views.APIView):
@@ -85,10 +94,7 @@ class TokenObtainView(views.APIView):
         confirmation_code = serializer.validated_data.get('confirmation_code')
         username = serializer.validated_data.get('username')
         user = get_object_or_404(User, username=username)
-        if (user and default_token_generator.check_token(user,
-                                                         confirmation_code)):
-            user.is_active = True
-            user.save()
+        if default_token_generator.check_token(user, confirmation_code):
             token = AccessToken.for_user(user)
             return Response({'token': f'{token}'},
                             status=status.HTTP_200_OK)
@@ -96,70 +102,31 @@ class TokenObtainView(views.APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class CategoryViewSet(
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
+class CategoryViewSet(CustomBaseViewSet):
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = (IsAdmin,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-
-    def get_permissions(self):
-        if self.action == 'list':
-            return (IsAdminOrReadOnly(),)
-        return super().get_permissions()
 
 
-class GenreViewSet(
-    mixins.CreateModelMixin,
-    mixins.DestroyModelMixin,
-    mixins.ListModelMixin,
-    viewsets.GenericViewSet
-):
+class GenreViewSet(CustomBaseViewSet):
+    permission_classes = (IsAdminOrReadOnly,)
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = (IsAdmin,)
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
-    lookup_field = 'slug'
-
-    def get_permissions(self):
-        if self.action == 'list':
-            return (IsAdminOrReadOnly(),)
-        return super().get_permissions()
 
 
 class TitleViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.annotate(
         rating=Avg(F('reviews__score'))
     )
-    permission_classes = (IsAdmin,)
+    permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
     filterset_class = TitleFilter
     http_method_names = ['get', 'post', 'head', 'patch', 'delete']
-
-    def get_permissions(self):
-        if self.action == 'retrieve' or self.action == 'list':
-            return (IsAdminOrReadOnly(),)
-        return super().get_permissions()
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
             return TitleSerializer
         return TitleSerializerCreateUpdate
-
-    def perform_update(self, serializer):
-        instance = serializer.save()
-        reviews = Review.objects.filter(title=instance)
-        if reviews.exists():
-            rating = reviews.aggregate(Avg('score'))['score__avg']
-            instance.rating = round(rating, 2)
-            instance.save()
 
 
 class ReviewViewSet(viewsets.ModelViewSet):

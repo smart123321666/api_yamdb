@@ -1,5 +1,8 @@
-import uuid
 
+
+from django.conf import settings
+
+from api.validators import validate_username
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
@@ -18,20 +21,16 @@ class CustomUser(AbstractUser):
     email = models.EmailField(
         'email',
         unique=True,)
-    role = models.CharField('Роль', max_length=100,
+    role = models.CharField('Роль', max_length=settings.MAX_ROLE_LENGTH,
                             choices=ROLE_CHOICES,
                             default=USER)
     bio = models.TextField('Биография', blank=True)
-    confirmation_code = models.CharField(max_length=70,
-                                         unique=True,
-                                         blank=True,
-                                         null=True,
-                                         default=uuid.uuid4)
+
     username = models.CharField(
         'username',
-        max_length=150,
+        max_length=settings.MAX_USERNAME_LENGTH,
         unique=True,
-        validators=[UnicodeUsernameValidator()]
+        validators=[UnicodeUsernameValidator(),validate_username]
     )
 
     @property

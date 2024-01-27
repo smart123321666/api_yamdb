@@ -1,11 +1,10 @@
 import datetime
-
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-MAXIMUM_LENGHT_OF_HEDERS = 256
+from django.db.models import UniqueConstraint
 
 
 User = get_user_model()
@@ -20,12 +19,11 @@ def validate_year(value):
 class Category(models.Model):
     name = models.CharField(
         'Наименование',
-        max_length=256,
+        max_length=settings.MAX_TEXT_LENGTH,
         unique=True
     )
     slug = models.SlugField(
         unique=True,
-        max_length=50,
     )
 
     class Meta:
@@ -42,12 +40,11 @@ class Category(models.Model):
 class Genre(models.Model):
     name = models.CharField(
         'Наименование жанра',
-        max_length=256,
+        max_length=settings.MAX_TEXT_LENGTH,
         unique=True
     )
     slug = models.SlugField(
-        unique=True,
-        max_length=50,
+        unique=True
     )
 
     class Meta:
@@ -64,14 +61,16 @@ class Genre(models.Model):
 class Title(models.Model):
     name = models.CharField(
         'Наименование произведения',
-        max_length=256,
+        max_length=settings.MAX_TEXT_LENGTH,
     )
     year = models.IntegerField(
         'Год',
         validators=[validate_year]
     )
     description = models.TextField(
-        'Описание'
+        'Описание',
+        blank=True
+
     )
     category = models.ForeignKey(
         Category,
@@ -112,9 +111,9 @@ class Review(models.Model):
         'Оценка',
         default=0,
         validators=[
-            MaxValueValidator(10, ('''Оценка не может
+            MaxValueValidator(settings.MAX_SCORE, ('''Оценка не может
                                    быть больше %(limit_value)s.''')),
-            MinValueValidator(0, ('''Оценка не может
+            MinValueValidator(settings.MIN_SCORE, ('''Оценка не может
                                   быть ниже %(limit_value)s.''')),
         ]
     )
@@ -126,7 +125,9 @@ class Review(models.Model):
     class Meta:
         verbose_name = 'Отзыв'
         verbose_name_plural = 'Отзывы'
-        unique_together = ('title', 'author')
+        constraints = [
+            UniqueConstraint(fields=['title', 'author'], name='unique_title_author')
+        ]
         ordering = [
             'pub_date',
         ]

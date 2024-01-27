@@ -128,6 +128,10 @@ SIMPLE_JWT = {
 }
 
 AUTH_USER_MODEL = 'users.CustomUser'
-
+MAX_SCORE = 10
+MIN_SCORE = 0
+MAX_TEXT_LENGTH = 256
+MAX_ROLE_LENGTH = 100
+MAX_USERNAME_LENGTH = 150
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_HOST_USER = 'yamdb@yandex.ru'
