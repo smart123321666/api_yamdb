@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 from pathlib import Path
 
@@ -135,4 +136,5 @@ MAX_TEXT_LENGTH = 256
 MAX_ROLE_LENGTH = 100
 MAX_USERNAME_LENGTH = 150
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 EMAIL_HOST_USER = 'yamdb@yandex.ru'

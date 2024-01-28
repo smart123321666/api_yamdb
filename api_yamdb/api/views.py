@@ -64,18 +64,12 @@ class UserSignUpView(views.APIView):
 
         if existing_user_by_email != existing_user_by_username:
             error_msg = {}
-            if (existing_user_by_email is not None
-               and existing_user_by_username is not None):
-                error_msg = {'email':
-                             ['Пользователь с таким email уже существует.'],
-                             'username':
-                             ['Пользователь с таким username уже существует.']}
             if existing_user_by_email is not None:
-                error_msg = {'email':
-                             ['Пользователь с таким email уже существует.']}
+                error_msg['email'] = (
+                    ['Пользователь с таким email уже существует.'])
             if existing_user_by_username is not None:
-                error_msg = {'email':
-                             ['Пользователь с таким username уже существует.']}
+                error_msg['username'] = (
+                    ['Пользователь с таким username уже существует.'])
             return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
 
         user, _ = User.objects.get_or_create(email=email, username=username)

@@ -18,10 +18,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
 
 
 class CustomUserCreationSerializer(serializers.Serializer):
-    username = serializers.RegexField(r"^[\w.@+-]+\Z$",
-                                      max_length=settings.MAX_USERNAME_LENGTH,
-                                      validators=[UnicodeUsernameValidator(),
-                                                  validate_username])
+    username = serializers.CharField(max_length=settings.MAX_USERNAME_LENGTH,
+                                     validators=[UnicodeUsernameValidator(),
+                                                 validate_username])
     email = serializers.EmailField(required=True,
                                    max_length=settings.MAX_EMAIL_LENGTH)
 
@@ -31,7 +30,9 @@ class CustomUserCreationSerializer(serializers.Serializer):
 
 
 class CodeConfirmSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True, max_length=150)
+    username = serializers.CharField(required=True, max_length=settings.MAX_USERNAME_LENGTH,
+                                     validators=[UnicodeUsernameValidator(),
+                                                 validate_username])
     confirmation_code = serializers.CharField(required=True)
 
 
@@ -52,10 +53,10 @@ class GenreSerializer(serializers.ModelSerializer):
 
 
 class TitleSerializerCreateUpdate(serializers.ModelSerializer):
+
     genre = serializers.SlugRelatedField(
         queryset=Genre.objects.all(),
         many=True,
-        allow_null=True,
         slug_field='slug'
     )
     category = serializers.SlugRelatedField(
@@ -64,16 +65,12 @@ class TitleSerializerCreateUpdate(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = '__all__'
         model = Title
+        fields = ['id', 'genre', 'category',
+                  'name', 'year', 'description']
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        representation['genre'] = [{'name': genre.name, 'slug': genre.slug}
-                                   for genre in instance.genre.all()]
-        representation['category'] = {'name': instance.category.name, 'slug':
-                                      instance.category.slug}
-        return representation
+    def to_representation(self, value):
+        return TitleSerializer(value).data
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -99,7 +96,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     def validate(self, data):
         title_id = self.context['view'].kwargs['title_id']
         author = self.context.get('request').user
-        if self.instance is None:
+        if self.context['request'].method == 'POST':
             existing_reviews = Review.objects.filter(title_id=title_id,
                                                      author=author).exists()
             if existing_reviews:
