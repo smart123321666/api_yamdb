@@ -30,7 +30,8 @@ class CustomUserCreationSerializer(serializers.Serializer):
 
 
 class CodeConfirmSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True, max_length=settings.MAX_USERNAME_LENGTH,
+    username = serializers.CharField(required=True,
+                                     max_length=settings.MAX_USERNAME_LENGTH,
                                      validators=[UnicodeUsernameValidator(),
                                                  validate_username])
     confirmation_code = serializers.CharField(required=True)
